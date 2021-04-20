@@ -51,28 +51,8 @@ message("VERSION_HASH: ${VERSION_HASH}")
 
 configure_file("${PROJECT_SOURCE_DIR}/version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/version.h")
 
-set(BUILD_LIBRETRO_DEFAULT OFF)
-set(BUILD_PLAYER_DEFAULT OFF)
-set(BUILD_DEMO_CARTS_DEFAULT OFF)
-set(BUILD_DEPRECATED FALSE)
-
-set(BUILD_TOUCH_INPUT_DEFAULT ${ANDROID})
-
 option(BUILD_SDL "SDL Enabled" ON)
-option(BUILD_SDLGPU "SDL GPU Enabled" OFF)
-option(BUILD_SOKOL "Sokol Enabled" OFF)
-option(BUILD_LIBRETRO "libretro Enabled" ${BUILD_LIBRETRO_DEFAULT})
-option(BUILD_DEMO_CARTS "Demo Carts Enabled" ${BUILD_DEMO_CARTS_DEFAULT})
-option(BUILD_PRO "Build PRO version" FALSE)
-option(BUILD_PLAYER "Build standalone players" ${BUILD_PLAYER_DEFAULT})
-option(BUILD_TOUCH_INPUT "Build with touch input support" ${BUILD_TOUCH_INPUT_DEFAULT})
-
-if(NOT BUILD_SDL)
-    set(BUILD_SDLGPU OFF)
-endif()
-
-message("BUILD_SDLGPU: ${BUILD_SDLGPU}")
-message("BUILD_TOUCH_INPUT: ${BUILD_TOUCH_INPUT}")
+option(BUILD_PLAYER "Build standalone players" ON)
 
 if(UNIX AND NOT APPLE AND NOT EMSCRIPTEN AND NOT ANDROID AND NOT N3DS)
     set(LINUX TRUE)
@@ -159,10 +139,6 @@ add_library(lua STATIC ${LUA_SRC})
 target_compile_definitions(lua PRIVATE LUA_COMPAT_5_2)
 target_include_directories(lua INTERFACE ${THIRDPARTY_DIR}/lua)
 
-if(N3DS)
-    target_compile_definitions(lua PUBLIC LUA_32BITS)
-endif()
-
 ################################
 # Blipbuf
 ################################
@@ -186,10 +162,6 @@ set(TIC80CORE_SRC
     ${TIC80CORE_DIR}/tools.c 
     ${TIC80CORE_DIR}/tilesheet.c 
 )
-
-if(BUILD_DEPRECATED)
-    set(TIC80CORE_SRC ${TIC80CORE_SRC} ${TIC80CORE_DIR}/ext/gif.c)
-endif()
 
 add_library(tic80core STATIC ${TIC80CORE_SRC})
 
@@ -229,7 +201,7 @@ endif()
 # SDL2 standalone cart player
 ################################
 
-if(BUILD_SDL AND BUILD_PLAYER AND NOT RPI)
+if(BUILD_SDL AND BUILD_PLAYER)
 
     add_executable(player-sdl WIN32 ${CMAKE_SOURCE_DIR}/src/system/sdl/player.c)
 
