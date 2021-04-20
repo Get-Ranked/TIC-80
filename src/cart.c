@@ -108,9 +108,8 @@ void tic_cart_load(tic_cartridge* cart, const u8* buffer, s32 size)
     }
 
     {
-#if defined(DEPRECATED_CHUNKS)
+
         struct {char data[TIC_BANK_SIZE];}* code = calloc(TIC_BANKS, TIC_BANK_SIZE);
-#endif
         const u8* ptr = buffer;
         while(ptr < end)
         {
@@ -131,9 +130,9 @@ void tic_cart_load(tic_cartridge* cart, const u8* buffer, s32 size)
             case CHUNK_CODE:
                 LOAD_CHUNK(code[chunk->bank].data);
                 break;
-            case CHUNK_CODE_ZIP:
-                tic_tool_unzip(cart->code.data, TIC_CODE_SIZE, ptr, chunk->size);
-                break;
+            // case CHUNK_CODE_ZIP:
+            //     tic_tool_unzip(cart->code.data, TIC_CODE_SIZE, ptr, chunk->size);
+            //     break;
 
 #if defined(DEPRECATED_CHUNKS)
             case CHUNK_COVER_DEP:
@@ -279,19 +278,19 @@ s32 tic_cart_save(const tic_cartridge* cart, u8* buffer)
     s32 codeLen = (s32)strlen(cart->code.data);
     if(codeLen < TIC_BANK_SIZE)
         buffer = saveFixedChunk(buffer, CHUNK_CODE, cart->code.data, codeLen, 0);
-    else
-    {
-        char* dst = malloc(TIC_BANK_SIZE);
-        s32 size = tic_tool_zip(dst, TIC_BANK_SIZE, cart->code.data, codeLen);
+    // else
+    // {
+    //     char* dst = malloc(TIC_BANK_SIZE);
+    //     s32 size = tic_tool_zip(dst, TIC_BANK_SIZE, cart->code.data, codeLen);
 
-        if(size)
-            buffer = saveFixedChunk(buffer, CHUNK_CODE_ZIP, dst, size, 0);
+    //     if(size)
+    //         buffer = saveFixedChunk(buffer, CHUNK_CODE_ZIP, dst, size, 0);
 
-        free(dst);
+    //     free(dst);
 
-        if(!size)
-            return 0;
-    }
+    //     if(!size)
+    //         return 0;
+    // }
 
 #undef SAVE_CHUNK
 
